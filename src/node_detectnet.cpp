@@ -74,12 +74,13 @@ void img_callback( const sensor_msgs::ImageConstPtr& input )
 	}
 
 	// if objects were detected, send out message
+	// RKJ: send the message even if empty
+	vision_msgs::Detection2DArray msg;
 	if( numDetections > 0 )
 	{
 		ROS_INFO("detected %i objects in %ux%u image", numDetections, input->width, input->height);
 		
 		// create a detection for each bounding box
-		vision_msgs::Detection2DArray msg;
 
 		for( int n=0; n < numDetections; n++ )
 		{
@@ -90,6 +91,9 @@ void img_callback( const sensor_msgs::ImageConstPtr& input )
 			
 			// create a detection sub-message
 			vision_msgs::Detection2D detMsg;
+
+			// RKJ: use the original frame sequence
+			detMsg.header.seq = input->header.seq;
 
 			detMsg.bbox.size_x = det->Width();
 			detMsg.bbox.size_y = det->Height();
@@ -112,9 +116,12 @@ void img_callback( const sensor_msgs::ImageConstPtr& input )
 			msg.detections.push_back(detMsg);
 		}
 
-		// publish the detection message
-		detection_pub->publish(msg);
+	}  else {
+		ROS_INFO("No faces detected");
 	}
+	// RKJ: publish a message even if empty
+	// publish the detection message
+	detection_pub->publish(msg);
 }
 
 
