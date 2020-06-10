@@ -175,7 +175,7 @@ int main(int argc, char **argv)
 		}
 
 		// create network using the built-in model
-		net = detectNet::Create(model);
+		net = detectNet::Create(model, threshold);
 	}
 	else
 	{
